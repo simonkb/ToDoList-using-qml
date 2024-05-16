@@ -1,155 +1,138 @@
 import QtQuick
 Item {
     property var taskObject: null
+    anchors.fill: parent
     Rectangle {
-        anchors { horizontalCenter: parent.horizontalCenter; top: parent.top; topMargin: 100 }
+        anchors { horizontalCenter: parent.horizontalCenter; top: header.bottom; topMargin: 20 }
         id: addTask
         width: parent.width * 0.9
-        color: 'lightgray'
+        color: 'lightgreen'
         radius: 10
-        height: 300
+        height: parent.height * 0.6
         clip: true
-
         Column {
             id:column
             anchors.fill: parent
             anchors.margins: 10
-            spacing: 10
+            spacing: 20
             Text {
                 anchors.horizontalCenter: parent.horizontalCenter
                 font.pixelSize: 16
                 font.bold: true
-                text: qsTr("Add Your Task!")
+                text: qsTr( !taskObject ? "Add Your Task" : "Edit Your Task" )
             }
-            Row {
+            Rectangle {
                 anchors.horizontalCenter: parent.horizontalCenter
-                width: parent.width
-                height: parent.height * 0.1
-                spacing: 10
-                Text {
-                    text: "Title"
-                    font.pixelSize: 14
-                    anchors.verticalCenter: parent.verticalCenter
+                width: parent.width * 0.9
+                height: taskInput.height
+                radius: 5
+                TextInput {
+                    id: taskInput
+                    padding: 10
+                    width: parent.width
+                    verticalAlignment: Text.AlignVCenter
+                    text: taskObject  ? taskObject.task: ""
+                    wrapMode: Text.Wrap
+                    font.pixelSize: 16
+                    font.bold: true
+                    PlaceHolder {
+                    }
                 }
+            }
+            Rectangle {
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width * 0.9
+                height: Math.max(taskDescription.height, 100)
+                radius: 5
+                TextEdit {
+                    id:taskDescription
+                    padding: 10
+                    width: parent.width
+                    text: taskObject  ? taskObject.details: ""
+                    wrapMode: Text.Wrap
+                    PlaceHolder {
+                        text: "Enter task details"
+                    }
+                }
+            }
 
-                Rectangle{
-                    width: parent.width * 0.7
-                    height: parent.height
-                    radius: 5
-                    TextInput{
-                        id: taskInput
-                        anchors.fill: parent
-                        padding: 10
-                        verticalAlignment: Text.AlignVCenter
-                        text: taskObject  ? taskObject.task: ""
-                        wrapMode: Text.Wrap
+            Rectangle {
+                id: time
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width * 0.9
+                height: taskInput.height
+                radius: 5
+                TextInput {
+                    id:timeInput
+                    padding: 10
+                    width: parent.width
+                    verticalAlignment: Text.AlignVCenter
+                    text: taskObject  ? taskObject.time : ""
+                    wrapMode: Text.Wrap
+                    PlaceHolder {
+                        text: "Enter time"
                     }
                 }
             }
             Row {
-                anchors.horizontalCenter: parent.horizontalCenter
-                width: parent.width
-                height: parent.height * 0.3
-
-                spacing: 10
-                Text {
-                    text: "Details"
-                    font.pixelSize: 14
-                    anchors.verticalCenter: parent.verticalCenter
-                }
-                Rectangle{
-                    width: parent.width * 0.7
-                    height: parent.height
-                    radius: 5
-                    TextEdit {
-                        id:taskDescription
-                        anchors.fill: parent
-                        padding: 10
-                        text: taskObject  ? taskObject.details: ""
-                        wrapMode: Text.Wrap
-
-
-                    }
-                }
-            }
-            Row {
-                anchors.horizontalCenter: parent.horizontalCenter
-                width: parent.width
-                height: parent.height*0.1
-                spacing: 10
-                Text {
-                    text: "Time"
-                    font.pixelSize: 14
-                    anchors.verticalCenter: parent.verticalCenter
-                }
-                Rectangle{
-                    width: parent.width * 0.7
-                    height: parent.height
-                    radius: 5
-                    TextInput {
-                        id:timeInput
-                        anchors.fill: parent
-                        leftPadding: 10
-                        verticalAlignment: Text.AlignVCenter
-                        text: taskObject  ? taskObject.time : ""
-                        wrapMode: Text.Wrap
-
-
-                    }
-                }
-            }
-            Row {
-                visible: !taskObject
                 anchors.horizontalCenter: parent.horizontalCenter
                 spacing: 10
                 Rectangle {
-                    id: addButton
-                    width: 50
-                    height: 25
+                    id: saveButton
+                    width: save.width
+                    height: save.height
                     color: "blue"
                     radius: 5
-
                     Text {
-                        id: add
-                        text: qsTr("Add")
+                        id: save
+                        text: qsTr( !taskObject ? "Add": "Save changes")
                         color: "white"
                         anchors.centerIn: parent
+                        padding: 10
                     }
                     MouseArea {
                         anchors.fill: parent
                         onClicked: {
-                            if(taskInput.text !== "" && timeInput.text !=="" && taskDescription.text !== ""){
-                                listModel.append({
-                                                          "task": taskInput.text,
-                                                          "details": taskDescription.text,
-                                                          "time": timeInput.text,
-                                                          "selected": false
-                                                      })
-                                taskInput.text = ""
-                                timeInput.text = ""
-                                taskDescription.text = ""
+                            if (!taskObject) {
+                                if(taskInput.text !== "" && timeInput.text !=="" && taskDescription.text !== ""){
+                                    listModel.append({ task: taskInput.text, details: taskDescription.text, time: timeInput.text, selected: false })
+                                }
+                            } else {
+                                if(taskInput.text !== "" && timeInput.text !=="" && taskDescription.text !== ""){
+                                    listModel.set(taskObject.index, {
+                                                      task: taskInput.text,
+                                                      details: taskDescription.text,
+                                                      time: timeInput.text,
+                                                  })
+                                    navigateTo("home.qml")
+                                }
                             }
+                            taskInput.text = ""
+                            timeInput.text = ""
+                            taskDescription.text = ""
                         }
                     }
                 }
 
                 Rectangle {
                     id: doneButton
-                    width: 50
-                    height: 25
-                    color: "green"
+                    width: done.width
+                    height: done.height
+                    color: !taskObject ? "green" : "red"
                     radius: 5
 
                     Text {
                         id: done
-                        text: qsTr("Done")
+                        text: qsTr( !taskObject ? "Done" : "Cancel")
                         color: "white"
                         anchors.centerIn: parent
+                        padding: 10
                     }
                     MouseArea {
                         anchors.fill: parent
                         onClicked: {
                             taskInput.text = ""
+                            taskDescription.text = ""
                             timeInput.text = ""
                             navigateTo("home.qml")
 
@@ -158,74 +141,25 @@ Item {
                 }
 
             }
-            Row {
-                visible: taskObject
-                anchors.horizontalCenter: parent.horizontalCenter
-                spacing: 10
-                Rectangle {
-                    id: saveButton
-                    width: save.width + 10
-                    height: 25
-                    color: "blue"
-                    radius: 5
 
-                    Text {
-                        id: save
-                        text: qsTr("Save Changes")
-                        color: "white"
-                        anchors.centerIn: parent
-                    }
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: {
-                            if(taskInput.text !== "" && timeInput.text !=="" && taskDescription.text !== ""){
-                                listModel.set( taskObject.index, {
-                                                          "task": taskInput.text,
-                                                          "details": taskDescription.text,
-                                                          "time": timeInput.text,
-                                                          "selected": false
-                                                      })
-                                taskInput.text = ""
-                                timeInput.text = ""
-                                taskDescription.text = ""
-                                navigateTo("home.qml")
-                            }
-                        }
-                    }
-                }
-                Rectangle {
-                    id: cancelButton
-                    width: cancel.width + 10
-                    height: 25
-                    color: "red"
-                    radius: 5
-
-                    Text {
-                        id: cancel
-                        text: qsTr("Cancel")
-                        color: "white"
-                        anchors.centerIn: parent
-                    }
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: {
-                            taskInput.text = ""
-                            timeInput.text = ""
-                            navigateTo("home.qml")
-
-                        }
-                    }
-                }
-
-            }
         }
+
         NumberAnimation on height {
             id: addTaskAnimation
-            from: 0;
-            to: 300; duration: 300
+            duration: 500
+            from: 0
+            to: addTask.height
         }
-
     }
 
-
+    Header {
+        id: header
+    }
+    component PlaceHolder : Text {
+        verticalAlignment: Text.AlignVCenter
+        text: "Enter task title"
+        visible: parent.text === "" && !parent.activeFocus
+        color: 'gray'
+        padding: 10
+    }
 }

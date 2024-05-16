@@ -18,6 +18,7 @@ qt_add_qml_module(appTodoList
     QML_FILES Main.qml
     QML_FILES TaskPage.qml
     QML_FILES home.qml
+    QML_FILES Header.qml
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.

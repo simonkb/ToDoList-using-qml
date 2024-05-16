@@ -20,6 +20,10 @@ Window {
         id: listModel
         ListElement {task:"Task title"; details: "This is an example task."; time: "10 : 00 pm"; selected: false}
         ListElement {task:"Task title"; details: "This is an example task."; time: "11 : 00 pm"; selected: false}
+        ListElement {task:"Task title"; details: "This is an example task."; time: "10 : 00 pm"; selected: false}
+        ListElement {task:"Task title"; details: "This is an example task."; time: "11 : 00 pm"; selected: false}
+        ListElement {task:"Task title"; details: "This is an example task."; time: "10 : 00 pm"; selected: false}
+        ListElement {task:"Task title"; details: "This is an example task."; time: "11 : 00 pm"; selected: false}
 
     }
 
