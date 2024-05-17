@@ -38,6 +38,7 @@ Rectangle{
 
         }
     }
+
     Rectangle {
         anchors.fill: parent
         visible: selectedCount > 0
