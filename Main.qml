@@ -9,23 +9,14 @@ Window {
     function addTask(task) {
         listView.model.append(task)
     }
-    function saveTask(index, task) {
+    function saveTask(task, index) {
         listView.model.set(index, task)
     }
-
     ListView {
         id: listView
-        width: parent.width * 0.9
-        height: parent.height - header1.height - 100
+        anchors { fill: parent; margins: 20; topMargin: 100 }
         clip: true
-        anchors {
-            top: header1.bottom
-            topMargin: 20
-            horizontalCenter: parent.horizontalCenter
-        }
-        model: ListModel {
-                ListElement { task: "djflaskfjs"; details: "dsdfsaf"; time: "faskflasj"; selected: false}
-            }
+        model: ListModel {}
         delegate: Rectangle {
             width: ListView.view.width
             height: taskText.height
@@ -42,20 +33,17 @@ Window {
                 anchors.fill: parent
                 pressAndHoldInterval: 300
                 onPressAndHold: {
-                    selectedCount += !selected ? 1 : 0
-                    selected = true
+                    if(!selected) {
+                        selectedCount++
+                        selected = true
+                    }
                 }
                 onClicked: {
                     if ( selectedCount > 0 ) {
-                        if (selected) {
-                            selectedCount --
-                        } else {
-                            selectedCount ++
-                        }
+                        selectedCount += selected ? -1 : 1
                         selected = !selected
                     } else {
-                        Qt.createComponent("TaskPage.qml").createObject(root, { taskObject : { "task": task, "details": details, "time": time, "index": index }, saveTaskFunction: saveTask })
-
+                        Qt.createComponent("TaskPage.qml").createObject(root, { taskObject: model, callback: saveTask })
                     }
                 }
             }
@@ -63,25 +51,20 @@ Window {
     }
     Column {
         visible: listView.model.count === 0
-        anchors {verticalCenter: parent.verticalCenter; centerIn: parent; verticalCenterOffset: -40 }
+        anchors { centerIn: parent; verticalCenterOffset: -40 }
         spacing: 20
         Text {
-            id: empty
-            text: qsTr("<i><h3>No tasks for today.</h3></i>")
+            text: "<i><h3>No tasks for today.</h3></i>"
         }
         CustomButton {
-            text: qsTr("<b>Add New</b>")
             anchors.horizontalCenter: parent.horizontalCenter
-            textColor: "white"
-            backgroundVisible: true
-            backgroundColor: "green"
-            onClicked: {
-                Qt.createComponent("TaskPage.qml").createObject(root, { addTaskFunction : addTask })
-            }
+            label { text: "<b>Add New</b>"; color: "white" }
+            background { visible: true; color: "green" }
+            onClicked: Qt.createComponent("TaskPage.qml").createObject(root, { callback: addTask })
         }
 
     }
-    function deletAllSelectedItems() {
+    function deleteSelectedItems() {
         for (let i=0; i<listView.model.count;) {
             if(listView.model.get(i).selected) {
                 listView.model.remove(i)
@@ -91,41 +74,16 @@ Window {
             }
         }
     }
-    Rectangle{
-        id: header1
-        anchors {
-            top: parent.top;
-            topMargin: 20 * parent.height/480;
-            horizontalCenter: parent.horizontalCenter;
-        }
-        radius: 5
-        border.color: 'lightgray'
+    Header {
         color:  selectedCount > 0 ? "lightgray" : "white"
-        border.width: 2
-        width: parent.width * 0.9
-        height: 60
-
-        Text {
-            id: title
-            text: qsTr( selectedCount > 0 ? "Selected : " + selectedCount : "To Do List")
-            font.pixelSize: 28
-            font.bold: true
-            padding: 10
-        }
-        CustomButton {
-            text: qsTr(selectedCount > 0 ? "Delete" : "<b>New</b>")
-            textColor: selectedCount > 0 ? "red": "black"
-            anchors {
-                right: parent.right
-                rightMargin: 10
-                verticalCenter: parent.verticalCenter
-            }
+        title: selectedCount > 0 ? "Selected : " + selectedCount : "To Do List"
+        button {
+            label { text: selectedCount > 0 ? "Delete" : "<b>New</b>"; color: selectedCount > 0 ? "red": "black" }
             onClicked: {
-                if (selectedCount > 0){
-                    deletAllSelectedItems()
-                } else {
-                    Qt.createComponent("TaskPage.qml").createObject(root, { addTaskFunction : addTask })
-                }
+                if (selectedCount > 0)
+                    deleteSelectedItems()
+                else
+                    Qt.createComponent("TaskPage.qml").createObject(root, { callback: addTask })
             }
         }
     }

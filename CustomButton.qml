@@ -2,11 +2,8 @@ import QtQuick
 MouseArea {
     width: label.width
     height: label.height
-    property alias text: label.text;
-    property alias textColor: label.color
-    property alias backgroundColor: background.color
-    property alias backgroundVisible: background.visible
-
+    property alias label: label;
+    property alias background: background
     Rectangle {
         id:background
         anchors {fill: parent; centerIn: parent }
